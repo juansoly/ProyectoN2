@@ -15,8 +15,8 @@ class Review extends StatelessWidget{
       margin: EdgeInsets.only(
         right: 10
       ),
-      width: 70,
-      height: 70,
+      width: 80,
+      height: 80,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         image: DecorationImage(
