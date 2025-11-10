@@ -12,7 +12,7 @@ class MyHome extends StatelessWidget{
   Widget build(BuildContext context) {
     final descriptionPlace = Container(
       margin: EdgeInsets.only(
-          top: 250,
+          top: 300,
           left: 30,
           right: 30
       ),
@@ -21,7 +21,7 @@ class MyHome extends StatelessWidget{
 
 
     );
-    final reviewlist =Container(
+    final reviewlist = Container(
       margin: EdgeInsets.only(
           top: 20,
           left: 30,
@@ -29,20 +29,21 @@ class MyHome extends StatelessWidget{
 
       ),
 
-      child:ReviewList() ,
+      child:ReviewList()
     );
     //listview
     final listView = ListView(
       children: <Widget>[
         descriptionPlace,
-        ReviewList()
+        reviewlist
       ],
     );
     return Scaffold(
-
         body: Stack(
           children: <Widget>[
-          CardImage("assets/images/lugar1.jpg")
+            listView,
+            HomeAppBar("Popular")
+
           ],
         )
     );

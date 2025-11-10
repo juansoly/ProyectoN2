@@ -7,7 +7,7 @@ class Review extends StatelessWidget{
   int cantidadEstrellas;
   String textoComentario;
   //metodo constructor
-  Review(this.pathFoto,this.TextoNombreUsuario,this.textoResumenUsuario,this.cantidadEstrellas,this.textoComentario);
+  Review(this.pathFoto, this.TextoNombreUsuario, this.textoResumenUsuario, this.cantidadEstrellas,this.textoComentario);
   @override
   Widget build(BuildContext context) {
     //foto
@@ -21,7 +21,8 @@ class Review extends StatelessWidget{
         shape: BoxShape.circle,
         image: DecorationImage(
           image: AssetImage(
-            "assets/images/persona1.jpeg"
+            "assets/images/persona1.jpg"
+
 
           ),
             fit: BoxFit.cover
