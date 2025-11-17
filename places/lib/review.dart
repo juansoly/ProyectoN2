@@ -1,71 +1,70 @@
 import 'package:flutter/material.dart';
-class Review extends StatelessWidget{
-  //variables
-  String pathFoto;
-  String TextoNombreUsuario;
+
+class Review extends StatelessWidget {
+
+  String pathPhoto;
+  String textNombreUsuario;
   String textoResumenUsuario;
   int cantidadEstrellas;
   String textoComentario;
-  //metodo constructor
-  Review(this.pathFoto, this.TextoNombreUsuario, this.textoResumenUsuario, this.cantidadEstrellas,this.textoComentario);
+
+  Review(this.pathPhoto, this.textNombreUsuario, this.textoResumenUsuario, this.cantidadEstrellas, this.textoComentario);
+
   @override
-  Widget build(BuildContext context) {
-    //foto
-    final foto= Container(
+  Widget build(BuildContext context){
+
+    final foto = Container(
       margin: EdgeInsets.only(
-        right: 10
+        right: 10,
+        top: 10,
       ),
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          image: AssetImage(
-            "assets/images/persona1.jpg"
-
-
-          ),
-            fit: BoxFit.cover
-        )
+          shape: BoxShape.circle,
+          image: DecorationImage(
+              image: AssetImage(
+                  pathPhoto
+              ),
+              fit: BoxFit.cover
+          )
       ),
-
     );
-    //nombre del usuario
+
     final nombreUsuario = Container(
       child: Text(
-        TextoNombreUsuario,
+        textNombreUsuario,
         style: TextStyle(
-          fontFamily: "Lato",
-          fontSize: 22
+            fontFamily: "Lato",
+            fontSize: 22
         ),
       ),
-
     );
-    //resumenUsuario
+
     final resumenUsuario = Container(
       margin: EdgeInsets.only(
-        right: 10
+        right: 10,
       ),
       child: Text(
         textoResumenUsuario,
         style: TextStyle(
-          fontFamily: "Lato",
-          color: Colors.black54
-      ),
+            fontFamily: "Lato",
+            color: Colors.black54
+        ),
       ),
     );
-    //estrella normal
+
     final estrella = Container(
       margin: EdgeInsets.only(
           right: 5
       ),
       child: Icon(
         Icons.star,
-        color:Colors.amber,
+        color: Colors.amber,
         size: 18,
       ),
     );
-    //estrella borde
+
     final estrellaBorde = Container(
       margin: EdgeInsets.only(
           right: 5
@@ -76,40 +75,37 @@ class Review extends StatelessWidget{
         size: 18,
       ),
     );
-    //Fila estrella
-    List <Container> estrellas = [];
-    for(int i=0; i<5; i++){
-      if(i < cantidadEstrellas) {
+
+    List<Container> estrellas = [];
+    for(int i = 0; i < 5; i++){
+      if(i < cantidadEstrellas){
         estrellas.add(estrella);
       }else{
         estrellas.add(estrellaBorde);
       }
     }
 
+
     final filaEstrellas = Row(
-      children:estrellas,
+      children: estrellas,
     );
 
-    //fila resumen
     final filaResumen = Row(
-      children:<Widget> [
+      children: <Widget>[
         resumenUsuario,
         filaEstrellas
       ],
     );
-    //comentario
+
     final comentario = Container(
       child: Text(
         textoComentario,
         style: TextStyle(
           fontFamily: "Lato",
-
         ),
-
       ),
     );
 
-    //columna review
     final columnaReview = Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,17 +113,15 @@ class Review extends StatelessWidget{
         nombreUsuario,
         filaResumen,
         comentario
-
       ],
     );
-    //review
+
     final review = Row(
-      children: < Widget>[
+      children: <Widget>[
         foto,
         columnaReview
       ],
     );
-   return review;
+    return review;
   }
-
 }

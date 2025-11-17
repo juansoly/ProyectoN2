@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:places/review.dart';
 
-class ReviewList extends StatelessWidget{
+class ReviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    //review list
     final reviewList = Column(
-      children: <Widget>[
-        Review("assets/images/persona1.jpg","goku","2 reviews - 3 photos",2,"Muy buen lugar para visitar."),
-        Review("assets/images/persona2.jpg","Alfredo Guzman","4 reviews - 3 photos",4,"Los momentos son los lugares interesantes"),
-        Review("assets/images/persona3.jpg","Marial Veizaga","3 reviews - 2 photos",5,"Muy buen para sacar fotos"),
-        Review("assets/images/persona4.jpg","Luisa Estrada","2 reviews - 3 photos",4,"La vida es hermosa"),
-        Review("assets/images/persona5.jpg","Alberto Soria","5 reviews - 5 photos",2,"Muy buen lugar para Viajar")
-      ],
+        children: <Widget>[
+          Review("assets/images/persona1.jpg", "Roberto Magno", "1 reviews - 3 photos", 4, "lugar interesante ! D:"),
+          Review("assets/images/persona2.jpg", "Lusia Ramos", "4 reviews - 2 photos", 4, "Les recomiendo este lugar.. :D"),
+          Review("assets/images/persona3.jpg", "Mijael Alvares", "3 reviews - 2 photos", 5, "Bastante lejos pero lo vale..."),
+          Review("assets/images/persona4.jpg", "Fernando Solis", "8 reviews - 4 photos", 3, "EL lugar es interesante!"),
+          Review("assets/images/persona5.jpg", "Carlos Cuellar", "3 reviews - 4 photos", 3, "Quiero ir a mi casita!!! :D!"),
+        ]
     );
-   return reviewList;
+
+    return reviewList;
   }
 }
