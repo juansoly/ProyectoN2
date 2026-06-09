@@ -1,79 +1,62 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  // Base URL de tu servidor en AWS Docker
-  final String _baseUrl = 'http://api.aotcservis.org:8080/api';
+  final String baseUrl = "http://api.aotcservis.org:8080/api/v1/auth";
 
-  // =========================================================================
-  // MÉTODO 1: REGISTRAR UN NUEVO USUARIO
-  // =========================================================================
-  Future<bool> registrarUsuario(String username, String email, String password) async {
-    final url = Uri.parse('$_baseUrl/users');
-
+  // LOGIN
+  Future<bool> iniciarSesion(String usuario, String contrasena) async {
     try {
       final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'user': {
-            'username': username,
-            'email': email,
-            'password': password,
-          }
-        }),
+        Uri.parse('$baseUrl/login'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"usuario": usuario, "contrasena": contrasena}),
       );
 
-      // Tu backend suele responder con un código de éxito 200 o 201
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print("¡Usuario registrado con éxito en AWS!");
-        print("Respuesta del servidor: ${response.body}");
+      // --- DEBUG: ESTO TE DIRÁ POR QUÉ NO RECIBES EL TOKEN ---
+      print("Respuesta del servidor: ${response.statusCode}");
+      print("Cuerpo de la respuesta: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // POSIBILIDAD 1: El token está dentro de un campo llamado 'token'
+        // POSIBILIDAD 2: El token es el cuerpo entero de la respuesta
+        // POSIBILIDAD 3: El campo se llama 'jwt' o 'accessToken'
+
+        // Intenta extraerlo así (ajusta 'token' si en la consola ves otro nombre)
+        String token = "";
+        if (data is Map && data.containsKey('token')) {
+          token = data['token'];
+        } else {
+          token = response.body; // A veces el backend devuelve solo el string del token
+        }
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
         return true;
-      } else {
-        print("Error en el registro. Código de estado: ${response.statusCode}");
-        print("Respuesta del servidor: ${response.body}");
-        return false;
       }
+      return false;
     } catch (e) {
-      print("Error de red al intentar registrar: $e");
+      print("Error en login: $e");
       return false;
     }
   }
 
-  // =========================================================================
-  // MÉTODO 2: INICIAR SESIÓN (LOGIN REAL)
-  // =========================================================================
-  Future<bool> iniciarSesion(String email, String password) async {
-    final url = Uri.parse('$_baseUrl/users/login');
-
+  // REGISTRO
+  Future<bool> registrarUsuario(Map<String, dynamic> datos) async {
     try {
       final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'user': {
-            'email': email,
-            'password': password,
-          }
-        }),
+        Uri.parse('$baseUrl/register'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(datos),
       );
-
-      // Tu Spring Boot basado en RealWorld devuelve 200 OK en accesos correctos
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print("¡Sesión iniciada con éxito en tu Spring Boot!");
-        print("Respuesta del servidor (con Token JWT): ${response.body}");
-        return true;
-      } else {
-        print("Error en el login. Código de estado: ${response.statusCode}");
-        print("Respuesta del servidor: ${response.body}");
-        return false;
-      }
+      print("Registro status: ${response.statusCode}");
+      print("Registro body: ${response.body}");
+      return response.statusCode == 200 || response.statusCode == 201;
     } catch (e) {
-      print("Error de red al intentar logear: $e");
+      print("Error en registro: $e");
       return false;
     }
   }

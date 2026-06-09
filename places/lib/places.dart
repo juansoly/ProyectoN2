@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:places/profile_places.dart';
 import 'package:places/search_places.dart';
 
+
 import 'home.dart';
 
 class Places extends StatefulWidget{

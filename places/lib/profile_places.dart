@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'auth_service.dart'; // Tu puente de conexión hacia AWS
+import 'package:intl/intl.dart';
+import 'auth_service.dart';
 
 class ProfilePlaces extends StatefulWidget {
   @override
@@ -7,215 +8,84 @@ class ProfilePlaces extends StatefulWidget {
 }
 
 class _ProfilePlacesState extends State<ProfilePlaces> {
-  // Controladores para capturar el texto de las cajas de entrada
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
+  final _formKey = GlobalKey<FormState>();
   final AuthService _authService = AuthService();
-  bool _estaCargando = false;
 
-  // Controla qué vista mostrar por defecto: true = Iniciar Sesión / false = Crear Cuenta
-  bool _esModoLogin = true;
+  final _userCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  final _nombresCtrl = TextEditingController();
+  final _apellidoCtrl = TextEditingController();
+  final _direccionCtrl = TextEditingController();
 
-  @override
-  void dispose() {
-    // Liberamos la memoria de los controladores al destruir el componente
-    _usernameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+  String? _genero;
+  DateTime? _fechaNac;
+
+  Future<void> _crearCuenta() async {
+    if (_formKey.currentState!.validate()) {
+      if (_genero == null || _fechaNac == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Selecciona género y fecha de nacimiento")));
+        return;
+      }
+
+      // Preparación de datos (asegúrate de que coincida con el @RequestBody de tu API)
+      final datos = {
+        "usuario": _userCtrl.text.trim(),
+        "contrasena": _passCtrl.text.trim(),
+        "email": _emailCtrl.text.trim(),
+        "nombres": _nombresCtrl.text.trim(),
+        "primerApellido": _apellidoCtrl.text.trim(),
+        "direccion": _direccionCtrl.text.trim(),
+        "genero": _genero,
+        "fechaNacimiento": DateFormat('yyyy-MM-dd').format(_fechaNac!),
+      };
+
+      bool ok = await _authService.registrarUsuario(datos);
+
+      if (ok) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("¡Cuenta creada exitosamente!"), backgroundColor: Colors.green));
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error al registrar: verifica la conexión o datos"), backgroundColor: Colors.red));
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      appBar: AppBar(title: Text("Registrar Usuario")),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 60.0),
+        padding: EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Título cambiante según el estado de la pantalla
-              Text(
-                _esModoLogin ? "Iniciar Sesión" : "Únete a Places",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                  fontFamily: 'Lato',
-                ),
+              TextFormField(controller: _userCtrl, decoration: InputDecoration(labelText: "Usuario"), validator: (v) => v!.isEmpty ? 'Requerido' : null),
+              TextFormField(controller: _emailCtrl, decoration: InputDecoration(labelText: "Email"), validator: (v) => v!.isEmpty ? 'Requerido' : null),
+              TextFormField(controller: _passCtrl, decoration: InputDecoration(labelText: "Contraseña"), obscureText: true, validator: (v) => v!.isEmpty ? 'Requerido' : null),
+              TextFormField(controller: _nombresCtrl, decoration: InputDecoration(labelText: "Nombres")),
+              TextFormField(controller: _apellidoCtrl, decoration: InputDecoration(labelText: "Apellido")),
+              TextFormField(controller: _direccionCtrl, decoration: InputDecoration(labelText: "Dirección")),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(labelText: "Género"),
+                items: ['M', 'F'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                onChanged: (val) => setState(() => _genero = val),
               ),
-              SizedBox(height: 8),
-              Text(
-                _esModoLogin
-                    ? "Ingresa tus credenciales para acceder a tu perfil."
-                    : "Crea tu cuenta para guardar tus destinos favoritos en la nube.",
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-              ),
-              SizedBox(height: 40),
-
-              // El campo 'Nombre de usuario' SOLOS se dibuja si estamos registrando una cuenta nueva
-              if (!_esModoLogin) ...[
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    labelText: "Nombre de usuario",
-                    prefixIcon: Icon(Icons.person_outline),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                SizedBox(height: 16),
-              ],
-
-              // Campo de entrada: Correo Electrónico (Requerido en Login y Registro)
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "Correo electrónico",
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Campo de entrada: Contraseña (Requerido en Login y Registro)
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Contraseña",
-                  prefixIcon: Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
+              ListTile(
+                title: Text(_fechaNac == null ? "Fecha Nacimiento" : DateFormat('yyyy-MM-dd').format(_fechaNac!)),
+                trailing: Icon(Icons.calendar_today),
+                onTap: () async {
+                  DateTime? picked = await showDatePicker(context: context, initialDate: DateTime(2000), firstDate: DateTime(1900), lastDate: DateTime.now());
+                  if (picked != null) setState(() => _fechaNac = picked);
+                },
               ),
               SizedBox(height: 30),
-
-              // Botón de acción principal
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: _estaCargando
-                    ? Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () async {
-                    // Validaciones iniciales para que no mande campos vacíos a AWS
-                    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Por favor, llena los campos requeridos"), backgroundColor: Colors.orange),
-                      );
-                      return;
-                    }
-                    if (!_esModoLogin && _usernameController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Por favor, ingresa tu nombre de usuario"), backgroundColor: Colors.orange),
-                      );
-                      return;
-                    }
-
-                    setState(() => _estaCargando = true);
-
-                    if (_esModoLogin) {
-                      // =========================================================
-                      // ACCIÓN: INICIAR SESIÓN (LOGIN REAL CON EL NUEVO MÉTODO)
-                      // =========================================================
-                      bool funcionoLogin = await _authService.iniciarSesion(
-                        _emailController.text.trim(),
-                        _passwordController.text.trim(),
-                      );
-
-                      if (mounted) setState(() => _estaCargando = false);
-
-                      if (funcionoLogin) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("¡Sesión iniciada con éxito! 🎉"),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        }
-                      } else {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Credenciales incorrectas o usuario inexistente."),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-
-                    } else {
-                      // =========================================================
-                      // ACCIÓN: REGISTRO DE CUENTA NUEVA
-                      // =========================================================
-                      bool funcionoRegistro = await _authService.registrarUsuario(
-                        _usernameController.text.trim(),
-                        _emailController.text.trim(),
-                        _passwordController.text.trim(),
-                      );
-
-                      if (mounted) setState(() => _estaCargando = false);
-
-                      if (funcionoRegistro) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("¡Cuenta creada con éxito! Ahora puedes logearte."),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                          // Tras registrarse con éxito, cambiamos la vista al Login de inmediato
-                          setState(() {
-                            _esModoLogin = true;
-                            _usernameController.clear();
-                          });
-                        }
-                      } else {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Fallo al registrar. El usuario o correo ya existen."),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    }
-                  },
-                  child: Text(
-                    _esModoLogin ? "INICIAR SESIÓN" : "CREAR CUENTA",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Texto interactivo en la parte inferior para saltar entre Login y Registro
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _esModoLogin = !_esModoLogin; // Invierte el estado de la pantalla
-                    });
-                  },
-                  child: Text(
-                    _esModoLogin
-                        ? "¿No tienes una cuenta? Regístrate aquí"
-                        : "¿Ya tienes una cuenta? Inicia sesión",
-                    style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.w600, fontSize: 15),
-                  ),
-                ),
-              ),
+              ElevatedButton(
+                onPressed: _crearCuenta,
+                child: Text("REGISTRARME"),
+                style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
+              )
             ],
           ),
         ),
