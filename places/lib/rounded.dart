@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 
 class RoundedButton extends StatelessWidget {
   final String textoBoton;
+  final VoidCallback onPressed; // Ahora es obligatorio
 
-  RoundedButton(this.textoBoton, {super.key});
+  RoundedButton({super.key, required this.textoBoton, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Navegando...")),
-        );
-      },
+      onTap: onPressed, // Ejecuta la acción al hacer clic
       child: Container(
         height: 50,
         width: 160,

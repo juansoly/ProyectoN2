@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:places/RegisterScreen.dart';
 import 'auth_service.dart';
 import 'places_cupertino.dart';
 import 'profile_places.dart';
@@ -89,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             SizedBox(height: 20),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePlaces())),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen())),
               child: Text("¿No tienes cuenta? Regístrate aquí", style: TextStyle(color: Colors.white)),
             ),
           ],

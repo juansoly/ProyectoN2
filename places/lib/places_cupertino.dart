@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter/cupertino.dart';
-import 'package:places/home.dart';
+import 'package:places/my_home_screen.dart';
 import 'package:places/profile_places.dart';
 import 'package:places/search_places.dart';
 

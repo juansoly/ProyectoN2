@@ -1,89 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:places/rounded.dart';
-class DescriptionPlace extends StatelessWidget{
-  //VARIABLES
-  String textoTitulo;
-  int cantidadEstrellas;
-  String textoDescripcion;
+// Asegúrate de importar tu pantalla de perfil donde corresponda
+// import 'package:places/profile_screen.dart';
 
-  DescriptionPlace(this.textoTitulo,this.cantidadEstrellas, this.textoDescripcion);
+class DescriptionPlace extends StatelessWidget {
+  final String textoTitulo;
+  final int cantidadEstrellas;
+  final String textoDescripcion;
+
+  DescriptionPlace(this.textoTitulo, this.cantidadEstrellas, this.textoDescripcion);
 
   @override
   Widget build(BuildContext context) {
-    final titulo = Container(
-      margin: EdgeInsets.only(
-        right: 20
-      ),
-      child: Text(
-        textoTitulo,
-        style: TextStyle(
+    final titulo = Text(
+      textoTitulo,
+      style: TextStyle(
           fontFamily: "Lato",
-          fontSize: 38,
-          fontWeight: FontWeight.bold
-        ),
-      ),
+          fontSize: 30,
+          fontWeight: FontWeight.bold),
+      overflow: TextOverflow.ellipsis,
     );
-    final estrella = Container(
-      margin: EdgeInsets.only(
-        right: 5
-      ),
-      child: Icon(
-        Icons.star,
-        color:Colors.amber,
-      ),
-    );
-    final estrellaBorde = Container(
-      margin: EdgeInsets.only(
-        right: 5
-      ),
-      child: Icon(
-        Icons.star_border,
-        color: Colors.black54,
-      ),
-    );
-    //Fila estrella
-    List <Container> estrellas = [];
-    for(int i=0; i<5; i++){
-      if(i < cantidadEstrellas) {
-        estrellas.add(estrella);
-      }else{
-        estrellas.add(estrellaBorde);
-      }
-      }
 
     final filaEstrellas = Row(
-      children:estrellas,
-
+      children: List.generate(5, (index) {
+        return Icon(
+          index < cantidadEstrellas ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+        );
+      }),
     );
-    final filaTitulo=Row(
+
+    final filaTitulo = Row(
       children: <Widget>[
-        titulo,
-        filaEstrellas
+        Flexible(child: titulo),
+        Container(margin: EdgeInsets.only(left: 10), child: filaEstrellas)
       ],
     );
-    final descripcion= Container(
-      margin: EdgeInsets.only(
-        top: 10
-      ),
+
+    final descripcion = Container(
+      margin: EdgeInsets.only(top: 10, right: 20),
       child: Text(
         textoDescripcion,
-        style: TextStyle(
-          fontFamily: "Lato",
-          color: Colors.black54
-        ),
-
+        style: TextStyle(fontFamily: "Lato", color: Colors.black54),
       ),
-
     );
-    final descriptionPlace = Column(
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         filaTitulo,
         descripcion,
-        RoundedButton("Navigate")
+        // CORRECCIÓN: Pasamos el onPressed aquí
+        RoundedButton(
+          textoBoton: "Navigate",
+          onPressed: () {
+            // Lógica de navegación
+            print("Navegando a detalles...");
+            /* Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfileScreen()),
+            );
+            */
+          },
+        )
       ],
     );
-    return descriptionPlace;
   }
-
 }

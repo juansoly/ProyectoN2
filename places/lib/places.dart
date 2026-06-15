@@ -3,7 +3,7 @@ import 'package:places/profile_places.dart';
 import 'package:places/search_places.dart';
 
 
-import 'home.dart';
+import 'my_home_screen.dart';
 
 class Places extends StatefulWidget{
   @override
