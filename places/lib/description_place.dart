@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:places/rounded.dart';
-// Asegúrate de importar tu pantalla de perfil donde corresponda
-// import 'package:places/profile_screen.dart';
+import 'comentarios_screen.dart';
+import 'nuevo_comentario_screen.dart'; // Asegúrate de importar tu nueva pantalla
 
 class DescriptionPlace extends StatelessWidget {
   final String textoTitulo;
   final int cantidadEstrellas;
   final String textoDescripcion;
+  final int idLugar;
 
-  DescriptionPlace(this.textoTitulo, this.cantidadEstrellas, this.textoDescripcion);
+  DescriptionPlace(this.textoTitulo, this.cantidadEstrellas, this.textoDescripcion, this.idLugar);
 
   @override
   Widget build(BuildContext context) {
     final titulo = Text(
       textoTitulo,
-      style: TextStyle(
-          fontFamily: "Lato",
-          fontSize: 30,
-          fontWeight: FontWeight.bold),
+      style: TextStyle(fontFamily: "Lato", fontSize: 30, fontWeight: FontWeight.bold),
       overflow: TextOverflow.ellipsis,
     );
 
@@ -50,18 +48,39 @@ class DescriptionPlace extends StatelessWidget {
       children: <Widget>[
         filaTitulo,
         descripcion,
-        // CORRECCIÓN: Pasamos el onPressed aquí
-        RoundedButton(
-          textoBoton: "Navigate",
-          onPressed: () {
-            // Lógica de navegación
-            print("Navegando a detalles...");
-            /* Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProfileScreen()),
-            );
-            */
-          },
+        Padding(
+          padding: const EdgeInsets.only(top: 20.0, right: 20.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: RoundedButton(
+                  textoBoton: "Ver comentarios",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ComentariosScreen(idLugar: idLugar),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: RoundedButton(
+                  textoBoton: "Comentar",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NuevoComentarioScreen(idLugar: idLugar),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         )
       ],
     );

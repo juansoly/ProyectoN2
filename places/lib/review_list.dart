@@ -1,10 +1,15 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:places/review.dart';
 
 class ReviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final reviewList = Column(
+    // Cambiamos Column por ListView para permitir el scroll vertical
+    return ListView(
+      // padding para que no quede pegado a los bordes
+        padding: EdgeInsets.zero,
+        // physics permite que rebote de forma nativa al llegar al final
+        physics: BouncingScrollPhysics(),
         children: <Widget>[
           Review("assets/images/persona1.jpg", "Roberto Magno", "1 reviews - 3 photos", 4, "lugar interesante ! D:"),
           Review("assets/images/persona2.jpg", "Lusia Ramos", "4 reviews - 2 photos", 4, "Les recomiendo este lugar.. :D"),
@@ -13,7 +18,5 @@ class ReviewList extends StatelessWidget {
           Review("assets/images/persona5.jpg", "Carlos Cuellar", "3 reviews - 4 photos", 3, "Quiero ir a mi casita!!! :D!"),
         ]
     );
-
-    return reviewList;
   }
 }
