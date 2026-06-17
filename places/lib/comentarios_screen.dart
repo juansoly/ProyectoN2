@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:places/auth_service.dart';
 
 class ComentariosScreen extends StatefulWidget {
@@ -40,6 +41,18 @@ class _ComentariosScreenState extends State<ComentariosScreen> {
   Future<void> _publicarComentario() async {
     if (_textController.text.isEmpty) return;
 
+    // --- MEJORA: Validación de sesión antes de enviar ---
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null || token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Debes iniciar sesión para publicar un comentario"))
+      );
+      return;
+    }
+
+    // --- Intentar guardar ---
     bool exito = await AuthService().guardarComentario(
         widget.idLugar,
         _textController.text,
@@ -48,10 +61,10 @@ class _ComentariosScreenState extends State<ComentariosScreen> {
 
     if (exito) {
       _textController.clear();
-      _cargarComentarios();
+      _cargarComentarios(); // Recarga la lista automáticamente
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("¡Comentario publicado!")));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error al publicar. Revisa tu sesión.")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error al publicar. Inténtalo de nuevo.")));
     }
   }
 
@@ -61,7 +74,6 @@ class _ComentariosScreenState extends State<ComentariosScreen> {
       appBar: AppBar(title: Text("Comentarios")),
       body: Column(
         children: [
-          // Mostrar formulario solo si es necesario
           if (widget.abrirDirectamenteComentar)
             Padding(
               padding: const EdgeInsets.all(12.0),

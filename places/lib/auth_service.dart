@@ -122,12 +122,13 @@ class AuthService {
   }
 
   // --- 6. COMENTARIOS ---
+
+  // PÚBLICO: Obtener comentarios sin cabecera de autenticación
   Future<List<dynamic>> obtenerComentariosPorLugar(int idLugar) async {
     try {
-      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('$baseUrl/comentarios/lugar/$idLugar'),
-        headers: headers,
+        headers: {"Content-Type": "application/json"},
       );
       return (response.statusCode == 200) ? jsonDecode(utf8.decode(response.bodyBytes)) : [];
     } catch (e) {
@@ -136,13 +137,19 @@ class AuthService {
     }
   }
 
+  // PRIVADO: Guardar comentario con el token en los headers
   Future<bool> guardarComentario(int idLugar, String texto, int calificacion) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final int idUsuario = prefs.getInt('userId') ?? 1;
+      final int idUsuario = prefs.getInt('userId') ?? 0;
       final headers = await _getHeaders();
 
-      // Ajustamos la fecha al formato YYYY-MM-DD que requiere el backend
+      // Validación de seguridad antes de enviar
+      if (idUsuario == 0 || !headers.containsKey("Authorization")) {
+        print("Usuario no autenticado para comentar.");
+        return false;
+      }
+
       final String fechaHoy = DateTime.now().toString().substring(0, 10);
 
       final response = await http.post(
